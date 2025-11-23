@@ -1,0 +1,17 @@
+{
+  "name": "rss-news-viewer",
+  "version": "2.0.0",
+  "description": "RSS News Viewer with Svelte frontend and PHP backend",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^3.0.0",
+    "svelte": "^4.2.0",
+    "vite": "^5.0.0"
+  },
+  "dependencies": {}
+}
