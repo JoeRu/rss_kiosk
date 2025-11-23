@@ -30,15 +30,15 @@ class FeedService {
      * Get news items from RSS feeds
      */
     public function getNews($forceRefresh = false) {
-        error_log("[FeedService] getNews called, forceRefresh: " . ($forceRefresh ? 'true' : 'false'));
+       //  error_log("[FeedService] getNews called, forceRefresh: " . ($forceRefresh ? 'true' : 'false'));
         
         // Check cache first
         if (!$forceRefresh && $this->config['cache']['enabled'] && $this->isCacheValid()) {
-            error_log("[FeedService] Using cached news");
+           //  error_log("[FeedService] Using cached news");
             return $this->getCachedNews();
         }
         
-        error_log("[FeedService] Fetching fresh news from feeds");
+       //  error_log("[FeedService] Fetching fresh news from feeds");
         // Fetch fresh news
         $news = $this->fetchFeeds();
         
@@ -56,26 +56,26 @@ class FeedService {
     private function fetchFeeds() {
         require_once __DIR__ . '/../src/Feed.php';
         
-        error_log("[FeedService] Loading " . count($this->config['feeds']) . " feeds");
+       //  error_log("[FeedService] Loading " . count($this->config['feeds']) . " feeds");
         $rss_feeds = [];
         foreach ($this->config['feeds'] as $feedUrl) {
             try {
-                error_log("[FeedService] Loading feed: $feedUrl");
+               //  error_log("[FeedService] Loading feed: $feedUrl");
                 $rss_feeds[] = Feed::loadRss($feedUrl);
-                error_log("[FeedService] Successfully loaded: $feedUrl");
+               //  error_log("[FeedService] Successfully loaded: $feedUrl");
             } catch (Exception $e) {
-                error_log("[FeedService] Failed to load feed: $feedUrl - " . $e->getMessage());
+               //  error_log("[FeedService] Failed to load feed: $feedUrl - " . $e->getMessage());
             }
         }
         
-        error_log("[FeedService] Processing " . count($rss_feeds) . " loaded feeds");
+       //  error_log("[FeedService] Processing " . count($rss_feeds) . " loaded feeds");
         $nachrichten = [];
         foreach ($rss_feeds as $feed) {
             // Try RSS format first (item)
             $itemCount = 0;
             if ($feed->item && count($feed->item) > 0) {
                 $itemCount = count($feed->item);
-                error_log("[FeedService] RSS Feed has $itemCount items");
+               //  error_log("[FeedService] RSS Feed has $itemCount items");
                 foreach ($feed->item as $item) {
                     $nachrichten[] = $item;
                 }
@@ -83,16 +83,16 @@ class FeedService {
             // Try Atom format (entry)
             elseif ($feed->entry && count($feed->entry) > 0) {
                 $itemCount = count($feed->entry);
-                error_log("[FeedService] Atom Feed has $itemCount entries");
+               //  error_log("[FeedService] Atom Feed has $itemCount entries");
                 foreach ($feed->entry as $item) {
                     $nachrichten[] = $item;
                 }
             } else {
-                error_log("[FeedService] Feed has no items or entries");
+               //  error_log("[FeedService] Feed has no items or entries");
             }
         }
         
-        error_log("[FeedService] Processing " . count($nachrichten) . " total items");
+       //  error_log("[FeedService] Processing " . count($nachrichten) . " total items");
         $news = [];
         foreach ($nachrichten as $item) {
             $title = strip_tags($item->title);
@@ -134,7 +134,7 @@ class FeedService {
             shuffle($news);
         }
         
-        error_log("[FeedService] Returning " . count($news) . " news items");
+       //  error_log("[FeedService] Returning " . count($news) . " news items");
         return $news;
     }
     
@@ -180,7 +180,7 @@ class FeedService {
         try {
             return (new QRCode)->render($url);
         } catch (Exception $e) {
-            error_log("Failed to generate QR code: " . $e->getMessage());
+           //  error_log("Failed to generate QR code: " . $e->getMessage());
             return null;
         }
     }
@@ -212,10 +212,10 @@ class FeedService {
         try {
             $result = @file_put_contents($this->cacheFile, json_encode($news));
             if ($result === false) {
-                error_log("Failed to write cache file: " . $this->cacheFile);
+               //  error_log("Failed to write cache file: " . $this->cacheFile);
             }
         } catch (Exception $e) {
-            error_log("Cache write error: " . $e->getMessage());
+           //  error_log("Cache write error: " . $e->getMessage());
         }
     }
     

@@ -2,18 +2,26 @@
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteBase /rss_kiosk/
     
-    # Serve static files from dist folder
+    # Redirect root to dist/
+    RewriteRule ^$ dist/ [L,R=301]
+    
+    # Don't rewrite API requests
+    RewriteCond %{REQUEST_URI} ^/rss_kiosk/api/ [NC]
+    RewriteRule ^ - [L]
+    
+    # Serve static files from dist folder if they exist
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} !^/api/
-    RewriteRule ^(.*)$ /dist/$1 [L]
+    RewriteCond %{DOCUMENT_ROOT}/rss_kiosk/dist%{REQUEST_URI} -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/rss_kiosk/dist%{REQUEST_URI} -d
+    RewriteRule ^(.*)$ dist/$1 [L]
     
-    # Handle SPA routing - serve index.html for non-API routes
+    # Handle SPA routing - serve index.html for non-API, non-existent routes
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} !^/api/
-    RewriteRule ^ /dist/index.html [L]
+    RewriteRule ^ dist/index.html [L]
 </IfModule>
 
 # Enable CORS for API (requires mod_headers module)

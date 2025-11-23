@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 
 // API base URL - adjust this based on your setup
-const API_BASE = '/rss-php/api';
+const API_BASE = '../api';
 
 export const newsStore = writable([]);
 export const configStore = writable({

@@ -9,12 +9,12 @@ export default defineConfig({
     emptyOutDir: true
   },
   server: {
-//    allowedHosts: ['joesnuc'],
+//    allowedHosts: ['myserver'],
     proxy: {
       '/api': {
 //        target: 'http://myserver:port',
         changeOrigin: true,
-        rewrite: (path) => '/rss-php' + path
+        rewrite: (path) => '/rss_kiosk' + path //@todo - change to destination path
       }
     }
   }
