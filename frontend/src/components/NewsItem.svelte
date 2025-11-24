@@ -26,13 +26,14 @@
 
 <style>
   .news-item {
-    padding: 40px 60px;
+    padding: 4vh 5vw;
     display: flex;
     flex-direction: column;
     justify-content: center;
     background: #000000;
     overflow: hidden;
     width: 100%;
+    height: 100vh;
     box-sizing: border-box;
   }
 
@@ -46,46 +47,46 @@
 
   .qr-code {
     float: right;
-    margin: 0 0 20px 20px;
+    margin: 0 0 2vh 2vw;
     z-index: 10;
   }
 
   .qr-code img {
     border-radius: 0;
     box-shadow: none;
-    width: 200px;
-    height: auto;
+    width: 10vw;
+    height: 10vw;
     display: block;
   }
 
   h3 {
-    margin: 0 0 30px 0;
+    margin: 0 0 3vh 0;
     padding: 0;
-    font-size: 2.2rem;
+    font-size: 8vh;
     color: #ffffff;
-    line-height: 1.3;
+    line-height: 1.2;
     overflow-wrap: break-word;
     word-wrap: break-word;
   }
 
   .news-text {
-    font-size: 1.6rem;
-    line-height: 1.9;
+    font-size: 6vh;
+    line-height: 10vh;
     color: #ffffff;
-    margin-bottom: 20px;
+    margin-bottom: 2vh;
     clear: none;
     overflow-wrap: break-word;
     word-wrap: break-word;
   }
 
   .news-text :global(img) {
-    max-width: 480px;
-    max-height: 360px;
+    max-width: 25vw;
+    max-height: 40vh;
     width: auto;
     height: auto;
     object-fit: contain;
     float: left;
-    margin: 10px 30px 10px 0;
+    margin: 1vh 3vw 1vh 0;
     border-radius: 0;
     clear: left;
   }
@@ -129,33 +130,35 @@
 
   @media (max-width: 768px) {
     .news-item {
-      padding: 20px;
-      min-height: 400px;
+      padding: 2vh 3vw;
+      height: 100vh;
     }
 
     h3 {
-      font-size: 1.5rem;
+      font-size: 6vh;
     }
 
     .news-text {
-      font-size: 1rem;
+      font-size: 4vh;
+      line-height: 8vh;
     }
 
     .qr-code {
       float: none;
       text-align: center;
-      margin: 0 0 20px 0;
+      margin: 0 0 2vh 0;
     }
 
     .qr-code img {
-      width: 150px;
+      width: 20vw;
+      height: 20vw;
     }
 
     .news-text :global(img) {
-      max-width: 100%;
+      max-width: 50vw;
       float: none;
       display: block;
-      margin: 10px auto;
+      margin: 1vh auto;
     }
   }
 </style>
