@@ -7,3 +7,5 @@ cache/
 node_modules/
 frontend/node_modules/
 *.log
+config.php
+.vscode/settings.json

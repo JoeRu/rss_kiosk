@@ -1,5 +1,15 @@
 <script>
   export let item;
+  
+  // Extract base domain from URL
+  function getBaseDomain(url) {
+    try {
+      const urlObj = new URL(url);
+      return urlObj.hostname;
+    } catch {
+      return '';
+    }
+  }
 </script>
 
 <div class="news-item">
@@ -12,6 +22,12 @@
     {/if}
   
     <h3>{item.title}</h3>
+    <div class="meta-info">
+      {#if item.link}
+        {getBaseDomain(item.link)} -
+      {/if}
+      {item.timestamp}
+    </div>
 
     {#if item.images && item.images.length > 0}
       <div class="content-images">
@@ -25,10 +41,6 @@
       {item.content}
     </div>
     
-  </div>
-  
-  <div class="news-footer">
-    <span class="timestamp">{item.timestamp}</span>
   </div>
 </div>
 
@@ -68,7 +80,7 @@
   }
 
   h3 {
-    margin: 0 0 3vh 0;
+    margin: 0 0 1vh 0;
     padding: 0;
     font-size: 8vh;
     color: #ffffff;
@@ -76,6 +88,16 @@
     overflow-wrap: break-word;
     word-wrap: break-word;
   }
+
+  .meta-info {
+    display: flex;
+    gap: 2vw;
+    margin: 0 0 2vh 0;
+    font-size: 3vh;
+    color: #888888;
+    line-height: 1;
+  }
+
 
   .content-images {
     float: left;

@@ -10,7 +10,9 @@ return [
     
     // RSS feed URLs to fetch
     'feeds' => [
-        'http://joesnuc:4000/?action=display&bridge=PerplexityBridge&limit=20&source=default&language=de&format=Mrss'
+       'https://www.hr3.de/index.rss',
+       'https://www.tagesschau.de/xml/rss2',
+       'https://rss.sueddeutsche.de/rss/Alles'
     ],
     
     // Cache settings
