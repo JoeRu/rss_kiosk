@@ -1,7 +1,16 @@
 <script>
+  /**
+   * NewsItem Component
+   * Displays a single news article with title, metadata, images, and content
+   * @prop {Object} item - News item object containing title, timestamp, link, images, content, and qrcode
+   */
   export let item;
   
-  // Extract base domain from URL
+  /**
+   * Extracts the base domain from a URL
+   * @param {string} url - Full URL of the news source
+   * @returns {string} - Hostname (e.g., "tagesschau.de")
+   */
   function getBaseDomain(url) {
     try {
       const urlObj = new URL(url);
@@ -12,16 +21,21 @@
   }
 </script>
 
+<!-- Main news item container -->
 <div class="news-item">
   <div class="news-content">
-
+    
+    <!-- QR Code for article link (floats right) -->
     {#if item.qrcode}
       <div class="qr-code">
         <img src={item.qrcode} alt="QR Code" width="250" />
       </div>
     {/if}
   
+    <!-- Article title -->
     <h3>{item.title}</h3>
+    
+    <!-- Source domain and timestamp -->
     <div class="meta-info">
       {#if item.link}
         {getBaseDomain(item.link)} -
@@ -29,6 +43,7 @@
       {item.timestamp}
     </div>
 
+    <!-- Article images (float left if present) -->
     {#if item.images && item.images.length > 0}
       <div class="content-images">
         {#each item.images as imageSrc, index}
@@ -37,6 +52,7 @@
       </div>
     {/if}
    
+    <!-- Article text content -->
     <div class="news-text">
       {item.content}
     </div>
@@ -45,6 +61,7 @@
 </div>
 
 <style>
+  /* Main container - Full viewport height with black background */
   .news-item {
     padding: 4vh 5vw;
     display: flex;
@@ -57,6 +74,7 @@
     box-sizing: border-box;
   }
 
+  /* Content wrapper with overflow control */
   .news-content {
     flex: 1;
     display: block;
@@ -65,6 +83,7 @@
     position: relative;
   }
 
+  /* QR Code - Floats to the right */
   .qr-code {
     float: right;
     margin: 0 0 2vh 2vw;
@@ -72,13 +91,12 @@
   }
 
   .qr-code img {
-    border-radius: 0;
-    box-shadow: none;
     width: 10vw;
     height: 10vw;
     display: block;
   }
 
+  /* Article title - Large white text */
   h3 {
     margin: 0 0 1vh 0;
     padding: 0;
@@ -89,22 +107,22 @@
     word-wrap: break-word;
   }
 
+  /* Metadata line - Source domain and timestamp */
   .meta-info {
-    display: flex;
-    gap: 2vw;
     margin: 0 0 2vh 0;
     font-size: 3vh;
     color: #888888;
     line-height: 1;
   }
 
-
+  /* Image container - Floats to the left */
   .content-images {
     float: left;
     margin: 0 3vw 2vh 0;
     max-width: 30vw;
   }
 
+  /* Individual content images */
   .content-image {
     max-width: 30vw;
     max-height: 45vh;
@@ -113,64 +131,27 @@
     object-fit: contain;
     display: block;
     margin-bottom: 1vh;
-    border-radius: 0;
   }
 
+  /* Article text content */
   .news-text {
     font-size: 6vh;
     line-height: 10vh;
     color: #ffffff;
     margin-bottom: 2vh;
-    clear: none;
     overflow-wrap: break-word;
     word-wrap: break-word;
   }
 
+  /* Hide any images embedded in text content (already shown separately) */
   .news-text :global(img) {
     display: none;
   }
 
-  .news-link {
-    display: none;
-  }
-
-  .news-link a {
-    display: inline-block;
-    background: #667eea;
-    color: white;
-    padding: 12px 24px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: all 0.3s ease;
-  }
-
-  .news-link a:hover {
-    background: #5568d3;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-
-  .news-footer {
-    display: none;
-  }
-
-  .news-footer-hidden {
-    border-top: 2px solid #ecf0f1;
-    padding-top: 20px;
-    margin-top: 20px;
-  }
-
-  .timestamp {
-    color: #7f8c8d;
-    font-size: 0.9rem;
-    font-style: italic;
-  }
-
+  /* Mobile responsive layout */
   @media (max-width: 768px) {
     .news-item {
       padding: 2vh 3vw;
-      height: 100vh;
     }
 
     h3 {
@@ -182,6 +163,7 @@
       line-height: 8vh;
     }
 
+    /* QR code centered on mobile */
     .qr-code {
       float: none;
       text-align: center;
@@ -193,11 +175,15 @@
       height: 20vw;
     }
 
-    .news-text :global(img) {
-      max-width: 50vw;
+    /* Images centered on mobile */
+    .content-images {
       float: none;
-      display: block;
-      margin: 1vh auto;
+      margin: 0 auto 2vh;
+      max-width: 50vw;
+    }
+
+    .content-image {
+      max-width: 50vw;
     }
   }
 </style>
