@@ -35,7 +35,11 @@
   }
 </script>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="settings-overlay" on:click={close}>
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div class="settings-panel" on:click|stopPropagation>
     <div class="settings-header">
       <h2>Settings</h2>
@@ -61,7 +65,7 @@
       </div>
 
       <div class="setting-group">
-        <label>Manual refresh:</label>
+        <p class="setting-label">Manual refresh:</p>
         <button 
           class="refresh-btn" 
           on:click={handleRefresh}
@@ -73,7 +77,7 @@
       </div>
 
       <div class="setting-group">
-        <label>Feed info:</label>
+        <p class="setting-label">Feed info:</p>
         <div class="info">
           <p>Feed sources: {$configStore.feedCount}</p>
           <p>Max items: {$configStore.maxItems}</p>
@@ -174,7 +178,8 @@
     margin-bottom: 0;
   }
 
-  label {
+  label,
+  .setting-label {
     display: block;
     font-weight: bold;
     color: #2c3e50;

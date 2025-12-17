@@ -107,14 +107,13 @@
 </div>
 
 <style>
-  h3 {margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0; }
-p { margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0; }
-img {
-      max-width: 25vw;
-      float: left;
-      margin: 1vh 2vw;
-      height: auto;
-    } 
+  /* Reset paragraph margins globally */
+  p { 
+    margin-top: 0; 
+    margin-bottom: 0; 
+    padding-top: 0; 
+    padding-bottom: 0; 
+  }
 
   .carousel-container {
     position: relative;
