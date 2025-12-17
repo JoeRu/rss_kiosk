@@ -12,9 +12,17 @@
     {/if}
   
     <h3>{item.title}</h3>
+
+    {#if item.images && item.images.length > 0}
+      <div class="content-images">
+        {#each item.images as imageSrc, index}
+          <img src={imageSrc} alt="News image {index + 1}" class="content-image" />
+        {/each}
+      </div>
+    {/if}
    
     <div class="news-text">
-      {@html item.content}
+      {item.content}
     </div>
     
   </div>
@@ -69,6 +77,23 @@
     word-wrap: break-word;
   }
 
+  .content-images {
+    float: left;
+    margin: 0 3vw 2vh 0;
+    max-width: 30vw;
+  }
+
+  .content-image {
+    max-width: 30vw;
+    max-height: 45vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    margin-bottom: 1vh;
+    border-radius: 0;
+  }
+
   .news-text {
     font-size: 6vh;
     line-height: 10vh;
@@ -80,15 +105,7 @@
   }
 
   .news-text :global(img) {
-    max-width: 25vw;
-    max-height: 40vh;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    float: left;
-    margin: 1vh 3vw 1vh 0;
-    border-radius: 0;
-    clear: left;
+    display: none;
   }
 
   .news-link {

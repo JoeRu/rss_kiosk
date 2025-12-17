@@ -56,17 +56,23 @@ Das RSS News Kiosk System besteht aus zwei Hauptkomponenten:
 ✅ Mehrere RSS-Feeds gleichzeitig  
 ✅ Intelligentes Caching-System  
 ✅ QR-Codes für jeden Artikel  
+✅ **Intelligente Bildextraktion** - Bilder werden aus dem Content extrahiert und prominent angezeigt  
+✅ **Automatische Textkürzung** - Texte werden auf 2 Sätze oder 70 Zeichen begrenzt  
 ✅ Responsive Design  
 ✅ Dunkles Theme  
 ✅ Manuelle Navigation möglich  
 ✅ Auto-Refresh der Feeds  
+✅ VS Code Integration mit Tasks für schnellen Start  
 
 ## Systemanforderungen
 
 ### Software
 
 - **PHP**: Version 7.4 oder höher
-  - Extension: `ext-simplexml` (für RSS-Parsing)
+  - **Erforderliche Extensions:**
+    - `ext-openssl` (für Composer/SSL)
+    - `ext-mbstring` (für QR-Code-Generator)
+    - `ext-simplexml` (für RSS-Parsing)
 - **Composer**: PHP Dependency Manager
 - **Node.js**: Version 16 oder höher
 - **npm**: Node Package Manager (kommt mit Node.js)
@@ -95,12 +101,30 @@ git clone <REPOSITORY_URL> rss_kiosk
 cd rss_kiosk
 ```
 
-### 2. PHP-Abhängigkeiten installieren
+### 2. PHP-Extensions aktivieren
+
+**⚠️ WICHTIG:** Vor der Installation müssen die erforderlichen PHP-Extensions aktiviert werden:
+
+```powershell
+# PHP-Konfigurationsdatei finden
+php --ini
+
+# Bearbeiten Sie die angezeigte php.ini Datei
+# Entfernen Sie das Semikolon (;) vor diesen Zeilen:
+#   extension=openssl
+#   extension=mbstring
+#   extension=simplexml
+
+# Überprüfen Sie, dass die Extensions geladen sind
+php -m | Select-String "openssl|mbstring|simplexml"
+```
+
+### 3. PHP-Abhängigkeiten installieren
 
 Installieren Sie die benötigten PHP-Bibliotheken mit Composer:
 
 ```powershell
-# Im Hauptverzeichnis des Projekts (z:\rss_kiosk)
+# Im Hauptverzeichnis des Projekts
 composer install
 ```
 
@@ -116,10 +140,12 @@ Package operations: X installs...
 ```
 
 **Troubleshooting:**
+- **"openssl extension is required"**: Aktivieren Sie `extension=openssl` in php.ini
+- **"ext-mbstring * is missing"**: Aktivieren Sie `extension=mbstring` in php.ini
 - Falls Composer nicht gefunden wird: [Composer installieren](https://getcomposer.org/download/)
 - Bei Fehlern wegen PHP-Version: Stellen Sie sicher, dass PHP 7.4+ installiert ist
 
-### 3. Frontend-Abhängigkeiten installieren
+### 4. Frontend-Abhängigkeiten installieren
 
 Wechseln Sie ins Frontend-Verzeichnis und installieren Sie die Node.js-Pakete:
 
@@ -148,7 +174,22 @@ added XXX packages in XXs
 - Falls npm nicht gefunden wird: [Node.js installieren](https://nodejs.org/)
 - Bei Netzwerkproblemen: `npm install --verbose` für Details
 
-### 4. Konfiguration anpassen
+### 5. Umgebungskonfiguration (Optional)
+
+Für benutzerdefinierte Einstellungen:
+
+```powershell
+# Kopieren Sie die Beispielkonfiguration
+cd frontend
+copy .env.example .env.local
+
+# Bearbeiten Sie .env.local nach Bedarf:
+# VITE_API_TARGET=http://127.0.0.1:8000  (Standard für PHP Built-in Server)
+# VITE_BASE_PATH=/rss_kiosk               (Deployment-Pfad)
+cd ..
+```
+
+### 6. Konfiguration anpassen
 
 Bearbeiten Sie die Datei `api/config.php` nach Ihren Bedürfnissen:
 
@@ -193,7 +234,7 @@ return [
 - Konfigurieren Sie `max_items` für die maximale Anzahl anzuzeigender Nachrichten
 - Definieren Sie `exclude_keywords` zum Filtern unerwünschter Artikel
 
-### 5. Cache-Verzeichnis vorbereiten
+### 7. Cache-Verzeichnis vorbereiten
 
 Stellen Sie sicher, dass das Cache-Verzeichnis existiert und beschreibbar ist:
 
@@ -210,7 +251,19 @@ Das Verzeichnis sollte bereits vorhanden sein. Falls nicht:
 New-Item -ItemType Directory -Path cache
 ```
 
-### 6. Backend starten
+### 8. Entwicklungsumgebung starten
+
+**Option 1: VS Code Tasks (Empfohlen)**
+
+Wenn Sie VS Code verwenden:
+
+1. Drücken Sie `Ctrl+Shift+P`
+2. Wählen Sie "Tasks: Run Task"
+3. Wählen Sie "Start Dev Environment"
+4. Beide Server (PHP und Vite) starten automatisch
+5. Öffnen Sie `http://localhost:5173`
+
+**Option 2: Manuell - Backend und Frontend starten**
 
 Sie haben zwei Optionen für das Backend:
 
@@ -234,30 +287,24 @@ Falls Apache bereits auf Port 8087 läuft:
 
 ```powershell
 # Im Hauptverzeichnis des Projekts
-cd Z:\rss_kiosk
+cd C:\Pfad\zum\rss_kiosk
 
-# PHP Built-in Server starten
-php -S 0.0.0.0:8000
+# PHP Built-in Server starten (WICHTIG: 127.0.0.1 verwenden!)
+php -S 127.0.0.1:8000 -t .
 ```
+
+**⚠️ Wichtig:** Verwenden Sie `127.0.0.1` statt `localhost`, um IPv6-Bindungsprobleme zu vermeiden.
 
 **Erwartete Ausgabe:**
 ```
 [Sun Nov 23 10:00:00 2025] PHP 8.x Development Server started
 ```
 
-**Hinweis:** Falls Sie Option B nutzen, müssen Sie `frontend/vite.config.js` anpassen:
-```javascript
-proxy: {
-    '/api': {
-        target: 'http://localhost:8000', // Port auf 8000 ändern
-        changeOrigin: true
-    }
-}
-```
+**Hinweis:** Die Vite-Konfiguration ist bereits auf `http://127.0.0.1:8000` eingestellt.
 
 **Lassen Sie dieses Fenster geöffnet!**
 
-### 7. Frontend starten
+### 9. Frontend starten
 
 Öffnen Sie ein **neues** PowerShell-Fenster:
 
@@ -280,7 +327,7 @@ npm run dev
 
 **Lassen Sie auch dieses Fenster geöffnet!**
 
-### 8. Anwendung öffnen
+### 10. Anwendung öffnen
 
 Öffnen Sie Ihren Webbrowser und navigieren Sie zu:
 
@@ -288,15 +335,12 @@ npm run dev
 http://localhost:5173
 ```
 
-Oder verwenden Sie den Hostnamen (falls im Netzwerk):
-```
-http://myserver:5173
-```
-
 **Was Sie sehen sollten:**
 - Eine dunkle Oberfläche mit News-Artikeln
+- **Bilder links vom Text** (automatisch aus dem Content extrahiert)
+- **Kurze, prägnante Texte** (automatisch auf 1-2 Sätze gekürzt)
 - Automatisches Durchblättern (Carousel)
-- QR-Codes neben jedem Artikel
+- QR-Codes rechts oben neben jedem Artikel
 - Steuerungselemente am unteren Rand
 
 **Falls keine Nachrichten angezeigt werden:**
