@@ -95,7 +95,7 @@ class FeedService {
        //  error_log("[FeedService] Processing " . count($nachrichten) . " total items");
         $news = [];
         foreach ($nachrichten as $item) {
-            $title = strip_tags($item->title);
+            $title = $this->decodeEntities(strip_tags($item->title));
             $timestamp = date('j.n.Y H:i', (int) $item->timestamp);
             $timestampUnix = (int) $item->timestamp;
             
@@ -110,7 +110,7 @@ class FeedService {
             $images = $this->extractImages($rawContent);
             
             // Clean content and remove images
-            $content = $this->cleanContent(strip_tags($rawContent));
+            $content = $this->cleanContent($this->decodeEntities(strip_tags($rawContent)));
             
             // Shorten content if necessary
             $content = $this->shortenContent($content);
@@ -219,6 +219,21 @@ class FeedService {
         return $content;
     }
     
+    /**
+     * Decode HTML entities in text
+     * Converts entities like &quot; &amp; &lt; to their actual characters
+     *
+     * @param string $text Text with potential HTML entities
+     * @return string Text with decoded entities
+     */
+    private function decodeEntities($text) {
+        return html_entity_decode(
+            $text,
+            ENT_QUOTES | ENT_HTML5,
+            'UTF-8'
+        );
+    }
+
     /**
      * Check if title should be excluded based on keywords
      */
