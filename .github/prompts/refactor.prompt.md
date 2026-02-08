@@ -1,3 +1,10 @@
+---
+description: 'Create a refactoring item in the implementation plan with optional modifiers.'
+name: 'Create refactoring item'
+argument-hint: 'Refactoring description with optional modifiers.'
+agent: 'agent'
+---
+
 Create a **refactoring item** in the implementation plan. The user's argument is the refactoring description.
 
 **Arguments:** `$ARGUMENTS` (refactoring description with optional modifiers)
