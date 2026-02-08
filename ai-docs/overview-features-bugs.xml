@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<implementation-plan>
+
+  <metadata>
+    <title>RSS News Kiosk - Implementation Plan</title>
+    <version>1.0</version>
+    <status>IN_PROGRESS</status>
+    <created>2026-02-08</created>
+    <updated>2026-02-08</updated>
+    <owner>johan</owner>
+    <repository>local</repository>
+  </metadata>
+
+  <goals>
+    <goal>Track features, bugs, refactoring, and tech-debt for the RSS News Kiosk project</goal>
+  </goals>
+
+  <scope>
+    <in-scope>All PHP backend and Svelte frontend code, configuration, build pipeline, deployment</in-scope>
+    <out-of-scope>External RSS feed provider maintenance, Apache server configuration beyond .htaccess</out-of-scope>
+  </scope>
+
+  <!-- ================================================================== -->
+  <!-- ACTIVE ITEMS                                                        -->
+  <!-- ================================================================== -->
+
+  <!-- [REF] items for features without test coverage -->
+
+  <item id="1" type="refactoring" status="PENDING" priority="MEDIUM" complexity="M" ref-feature="CF1">
+    <title>[REF] REST API endpoints – add test coverage</title>
+    <justification>Feature CF1 has completeness=FULL, test-coverage=NONE. API endpoints are the primary interface and changes risk breaking clients without detection.</justification>
+    <depends-on></depends-on>
+    <tasks>
+      <task id="1.1">Set up PHP test framework (PHPUnit or similar)</task>
+      <task id="1.2">Write tests for /news endpoint (success, empty feeds, error handling)</task>
+      <task id="1.3">Write tests for /config endpoint (correct structure and values)</task>
+      <task id="1.4">Write tests for /status endpoint (cached/uncached states)</task>
+      <task id="1.5">Write tests for /refresh endpoint (force refresh behavior)</task>
+      <task id="1.6">Write tests for unknown endpoint (404 response)</task>
+    </tasks>
+    <verification>
+      <tests>
+        <test type="integration">
+          <file>tests/api/test_endpoints.php</file>
+          <description>API endpoint integration tests</description>
+          <assertions>Correct JSON structure, status codes, CORS headers for all endpoints</assertions>
+        </test>
+      </tests>
+    </verification>
+    <r>
+      <outcome></outcome>
+      <files><file></file></files>
+    </r>
+  </item>
+
+  <item id="2" type="refactoring" status="PENDING" priority="MEDIUM" complexity="M" ref-feature="CF2">
+    <title>[REF] Feed fetching and parsing – add test coverage</title>
+    <justification>Feature CF2 has completeness=FULL, test-coverage=NONE. Feed parsing is core functionality; regressions could silently break news display.</justification>
+    <depends-on></depends-on>
+    <tasks>
+      <task id="2.1">Write tests for RSS format parsing (item-based feeds)</task>
+      <task id="2.2">Write tests for Atom format parsing (entry-based feeds)</task>
+      <task id="2.3">Write tests for feed load failure handling (graceful degradation)</task>
+      <task id="2.4">Write tests for timestamp extraction (pubDate, dc:date)</task>
+    </tasks>
+    <verification>
+      <tests>
+        <test type="unit">
+          <file>tests/api/test_feed_parsing.php</file>
+          <description>Feed parsing unit tests with mock RSS/Atom XML</description>
+          <assertions>Correct item extraction, timestamp parsing, error handling for malformed feeds</assertions>
+        </test>
+      </tests>
+    </verification>
+    <r>
+      <outcome></outcome>
+      <files><file></file></files>
+    </r>
+  </item>
+
+  <item id="3" type="refactoring" status="PENDING" priority="LOW" complexity="S" ref-feature="CF3">
+    <title>[REF] File-based caching – add test coverage</title>
+    <justification>Feature CF3 has completeness=FULL, test-coverage=NONE. Cache logic affects data freshness and performance.</justification>
+    <depends-on></depends-on>
+    <tasks>
+      <task id="3.1">Write tests for cache validity check (TTL expiry)</task>
+      <task id="3.2">Write tests for cache read/write cycle</task>
+      <task id="3.3">Write tests for force-refresh bypassing cache</task>
+      <task id="3.4">Write tests for cache directory auto-creation</task>
+    </tasks>
+    <verification>
+      <tests>
+        <test type="unit">
+          <file>tests/api/test_caching.php</file>
+          <description>Cache behavior unit tests</description>
+          <assertions>Cache hit within TTL, miss after TTL, force-refresh bypasses, directory created if missing</assertions>
+        </test>
+      </tests>
+    </verification>
+    <r>
+      <outcome></outcome>
+      <files><file></file></files>
+    </r>
+  </item>
+
+  <item id="4" type="refactoring" status="PENDING" priority="LOW" complexity="S" ref-feature="CF4">
+    <title>[REF] Content cleaning and shortening – add test coverage</title>
+    <justification>Feature CF4 has completeness=FULL, test-coverage=NONE. Content cleaning logic has specific regex patterns that could break with edge cases.</justification>
+    <depends-on></depends-on>
+    <tasks>
+      <task id="4.1">Write tests for cleanContent (whitespace, [mehr], tagesschau text removal)</task>
+      <task id="4.2">Write tests for shortenContent (2 sentences, 70 chars, short first sentence logic)</task>
+      <task id="4.3">Write tests for decodeEntities (HTML entity handling)</task>
+    </tasks>
+    <verification>
+      <tests>
+        <test type="unit">
+          <file>tests/api/test_content_processing.php</file>
+          <description>Content cleaning and shortening unit tests</description>
+          <assertions>Correct cleaning of known patterns, proper sentence splitting, entity decoding</assertions>
+        </test>
+      </tests>
+    </verification>
+    <r>
+      <outcome></outcome>
+      <files><file></file></files>
+    </r>
+  </item>
+
+  <item id="5" type="refactoring" status="PENDING" priority="LOW" complexity="S" ref-feature="CF5">
+    <title>[REF] Image extraction – add test coverage</title>
+    <justification>Feature CF5 has completeness=FULL, test-coverage=NONE. Regex-based image extraction could miss edge cases or allow invalid URLs.</justification>
+    <depends-on></depends-on>
+    <tasks>
+      <task id="5.1">Write tests for extractImages with various HTML img patterns</task>
+      <task id="5.2">Write tests for URL validation (http, //, relative URLs filtered)</task>
+      <task id="5.3">Write tests for deduplication</task>
+    </tasks>
+    <verification>
+      <tests>
+        <test type="unit">
+          <file>tests/api/test_image_extraction.php</file>
+          <description>Image extraction unit tests</description>
+          <assertions>Correct extraction from various img tag formats, invalid URLs rejected, duplicates removed</assertions>
+        </test>
+      </tests>
+    </verification>
+    <r>
+      <outcome></outcome>
+      <files><file></file></files>
+    </r>
+  </item>
+
+  <item id="6" type="refactoring" status="PENDING" priority="LOW" complexity="S" ref-feature="CF7">
+    <title>[REF] Keyword filtering – add test coverage</title>
+    <justification>Feature CF7 has completeness=FULL, test-coverage=NONE. Keyword filtering is case-insensitive substring match that should be verified.</justification>
+    <depends-on></depends-on>
+    <tasks>
+      <task id="6.1">Write tests for shouldExclude with matching and non-matching keywords</task>
+      <task id="6.2">Write tests for case-insensitive matching</task>
+    </tasks>
+    <verification>
+      <tests>
+        <test type="unit">
+          <file>tests/api/test_keyword_filter.php</file>
+          <description>Keyword filtering unit tests</description>
+          <assertions>Exact match, partial match, case variations all correctly filter or pass</assertions>
+        </test>
+      </tests>
+    </verification>
+    <r>
+      <outcome></outcome>
+      <files><file></file></files>
+    </r>
+  </item>
+
+  <item id="7" type="tech-debt" status="PENDING" priority="LOW" complexity="S">
+    <title>Pin php-qrcode to stable release</title>
+    <justification>composer.json requires chillerlan/php-qrcode v5.0.x-dev. Using a dev version in production risks breaking changes and potential vulnerabilities.</justification>
+    <depends-on></depends-on>
+    <tasks>
+      <task id="7.1">Check for latest stable release of chillerlan/php-qrcode</task>
+      <task id="7.2">Update composer.json to pin stable version</task>
+      <task id="7.3">Run composer update and verify QR generation still works</task>
+    </tasks>
+    <verification>
+      <tests>
+        <test type="human">
+          <description>Verify QR codes still generate correctly after version update</description>
+          <assertions>QR codes render as valid images in news items</assertions>
+        </test>
+      </tests>
+    </verification>
+    <r>
+      <outcome></outcome>
+      <files><file></file></files>
+    </r>
+  </item>
+
+  <item id="8" type="tech-debt" status="PENDING" priority="LOW" complexity="S">
+    <title>Sanitize error messages in API responses</title>
+    <justification>The API catch block returns $e-&gt;getMessage() directly in JSON error responses. Internal exception messages could leak file paths, library details, or server configuration to clients.</justification>
+    <depends-on></depends-on>
+    <tasks>
+      <task id="8.1">Replace raw exception messages with generic error messages in API responses</task>
+      <task id="8.2">Add error_log() for the actual exception details for debugging</task>
+    </tasks>
+    <verification>
+      <tests>
+        <test type="human">
+          <description>Trigger an error (e.g., invalid feed URL) and verify API returns generic message, not internal details</description>
+          <assertions>Error response contains generic message, PHP error log contains detailed exception</assertions>
+        </test>
+      </tests>
+    </verification>
+    <r>
+      <outcome></outcome>
+      <files><file></file></files>
+    </r>
+  </item>
+
+  <!-- ================================================================== -->
+  <!-- ARCHIVE                                                             -->
+  <!-- ================================================================== -->
+  <archive>
+  </archive>
+
+  <!-- ================================================================== -->
+  <!-- CHANGELOG                                                           -->
+  <!-- ================================================================== -->
+  <changelog>
+    <entry date="2026-02-08">Initial analysis: 15 features cataloged (all FULL completeness, all NONE test-coverage). Created 6 [REF] items (1-6) for test coverage gaps. Created 2 tech-debt items (7-8) for dependency pinning and error message sanitization.</entry>
+  </changelog>
+
+</implementation-plan>

@@ -1,9 +1,14 @@
-# RSS News Kiosk - AI Coding Agent Instructions
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Implementation Plan Workflow
+
+**IMPORTANT:** Read `CLAUDE-implementation-plan-chapter.md` for the XML-based implementation plan workflow. All feature requests, bugs, and changes must be tracked in `ai-docs/overview-features-bugs.xml`.
 
 ## Project Overview
-RSS News Kiosk is a **split-stack application** with a PHP REST API backend and Svelte SPA frontend, designed as a kiosk-style news viewer. The frontend displays RSS news articles in an auto-playing carousel with manual controls.
 
-# Read CLAUDE-implementation-plan-chapter.md as Implementation Plan Workflow instructions.
+RSS News Kiosk is a **split-stack application** with a PHP REST API backend and Svelte SPA frontend, designed as a kiosk-style news viewer. The frontend displays RSS news articles in an auto-playing carousel with manual controls.
 
 ## Architecture
 
@@ -190,13 +195,11 @@ npm run build  # Outputs to ../dist/
 - Auto-refresh interval from API config, not hardcoded in frontend
 
 ### Vite Development Proxy
-- Configured in `vite.config.js` using environment vari127.0.0.1:8000`
+- Configured in `vite.config.js`, defaults to `http://127.0.0.1:8000`
 - Proxy does NOT rewrite path in dev mode - passes `/api` through directly
-- **Critical:** Vite default in code MUST match actual PHP server address (127.0.0.1:8000)
-- Override via environment variables if using Apache or different ports
-- **Network binding:** Vite serves on `0.0.0.0:5173` (all interfaces), PHP on `127.0.0.1:8000` (IPv4 only)00`
-- Rewrites `/api` to `${VITE_BASE_PATH}/api` for backend routing
-- Override via environment variables if using different ports/paths
+- **Critical:** Vite default must match actual PHP server address (127.0.0.1:8000)
+- Override via `VITE_API_TARGET` environment variable if using Apache or different ports
+- **Network binding:** Vite serves on `0.0.0.0:5173` (all interfaces), PHP on `127.0.0.1:8000` (IPv4 only)
 
 ### Production Routing
 - `.htaccess` rules:

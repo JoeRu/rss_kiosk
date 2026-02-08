@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-overview>
+  <metadata>
+    <title>RSS News Kiosk</title>
+    <version>2.0.0</version>
+    <analyzed>2026-02-08</analyzed>
+    <updated>2026-02-08</updated>
+    <repository>local</repository>
+  </metadata>
+
+  <architecture>
+    <description>Split-stack kiosk-style news viewer with a PHP REST API backend and Svelte 4 SPA frontend. The backend fetches, caches, cleans, and serves RSS/Atom feed items as JSON. The frontend displays them in a full-screen auto-playing carousel optimized for unattended display (kiosk mode). Communication is via a JSON REST API proxied through Vite in development and routed via .htaccess in production.</description>
+
+    <patterns>
+      <pattern>REST API (PHP, file-based routing via query parameter)</pattern>
+      <pattern>Single Page Application (Svelte 4, Vite)</pattern>
+      <pattern>Service Layer (FeedService encapsulates all backend logic)</pattern>
+      <pattern>Store Pattern (Svelte writable stores for state management)</pattern>
+      <pattern>File-based Caching (JSON cache with TTL)</pattern>
+      <pattern>Proxy-based Dev Environment (Vite proxies /api to PHP server)</pattern>
+    </patterns>
+
+    <system-requirements>
+      <requirement>PHP &gt;= 7.4</requirement>
+      <requirement>ext-simplexml (PHP extension)</requirement>
+      <requirement>ext-openssl (PHP extension)</requirement>
+      <requirement>ext-mbstring (PHP extension)</requirement>
+      <requirement>Node.js &gt;= 16</requirement>
+      <requirement>Composer (PHP dependency manager)</requirement>
+      <requirement>npm (Node package manager)</requirement>
+    </system-requirements>
+
+    <external-dependencies>
+      <dependency>dg/rss-php (RSS/Atom feed parser, via Composer, bundled in src/Feed.php)</dependency>
+      <dependency>chillerlan/php-qrcode v5.0.x-dev (QR code generation, via Composer)</dependency>
+      <dependency>chillerlan/php-settings-container (transitive dependency of php-qrcode)</dependency>
+      <dependency>Svelte 4.2.x (frontend framework, via npm)</dependency>
+      <dependency>Vite 5.x (build tool and dev server, via npm)</dependency>
+      <dependency>@sveltejs/vite-plugin-svelte 3.x (Svelte integration for Vite)</dependency>
+      <dependency>External RSS feeds: hr3.de, spiegel.de, tagesschau.de, local Perplexity bridge (joesnuc:4000)</dependency>
+    </external-dependencies>
+
+    <interfaces>
+      <interface type="inbound">GET /api/index.php?path=/news - Returns JSON array of news items</interface>
+      <interface type="inbound">GET /api/index.php?path=/news&amp;refresh=true - Force-refresh cached news</interface>
+      <interface type="inbound">GET /api/index.php?path=/config - Returns public configuration (refreshInterval, maxItems, feedCount)</interface>
+      <interface type="inbound">GET /api/index.php?path=/status - Returns cache status (cached, age, nextRefresh)</interface>
+      <interface type="inbound">GET /api/index.php?path=/refresh - Force refresh and return news</interface>
+      <interface type="outbound">HTTP GET to external RSS/Atom feed URLs (hr3, Spiegel, Tagesschau, local bridge)</interface>
+    </interfaces>
+
+    <design-decisions>
+      <decision date="2026-02-08">File-based JSON caching chosen over database for simplicity; suitable for single-instance kiosk deployment</decision>
+      <decision date="2026-02-08">Content cleaning is server-side (PHP) to keep frontend rendering simple</decision>
+      <decision date="2026-02-08">QR codes generated as base64 data URIs to avoid additional image hosting</decision>
+      <decision date="2026-02-08">Kiosk UI: controls (carousel buttons, indicators, counter, settings button, header) hidden via display:none for unattended display</decision>
+      <decision date="2026-02-08">Feed parser (dg/rss-php) vendored in src/Feed.php rather than used purely via Composer autoload</decision>
+    </design-decisions>
+  </architecture>
+
+  <environments>
+    <environment name="dev">PHP built-in server on 127.0.0.1:8000, Vite dev server on 0.0.0.0:5173 with /api proxy. VS Code tasks available for one-click startup. Environment variables via frontend/.env.local.</environment>
+    <environment name="prod">Apache with mod_rewrite. .htaccess routes: root redirects to dist/, /api passes through to PHP, SPA fallback to dist/index.html. Built frontend served from dist/ directory. Base path: /rss_kiosk/dist/.</environment>
+  </environments>
+
+  <security>
+    <concern>
+      <threat>Wildcard CORS headers (Access-Control-Allow-Origin: *)</threat>
+      <risk>LOW</risk>
+      <vulnerability>Any domain can make API requests. Acceptable for a read-only kiosk feed but could be tightened.</vulnerability>
+      <mitigation>API is read-only, returns only public RSS content. No authentication or user data involved.</mitigation>
+    </concern>
+    <concern>
+      <threat>No input validation on query parameters</threat>
+      <risk>LOW</risk>
+      <vulnerability>The path parameter is matched against a fixed switch/case, limiting injection risk. The refresh parameter is checked for string equality.</vulnerability>
+      <mitigation>No database queries, no dynamic file inclusion. Switch/case with default 404 limits attack surface.</mitigation>
+    </concern>
+    <concern>
+      <threat>Exception messages exposed in API error responses</threat>
+      <risk>LOW</risk>
+      <vulnerability>Catch block returns $e-&gt;getMessage() directly, which could leak internal paths or library details.</vulnerability>
+      <mitigation>Currently acceptable for internal/kiosk use. Should be sanitized if API becomes publicly accessible.</mitigation>
+    </concern>
+    <concern>
+      <threat>RSS feed content injection (XSS via feed content)</threat>
+      <risk>MEDIUM</risk>
+      <vulnerability>Content from RSS feeds is processed with strip_tags() server-side, but images are passed through as URLs. Malicious feed could inject crafted image URLs or content.</vulnerability>
+      <mitigation>strip_tags() removes HTML. Image URLs are validated to start with http or //. Frontend renders content as text (Svelte escapes by default).</mitigation>
+    </concern>
+    <concern>
+      <threat>Local network service exposure (joesnuc:4000 feed URL)</threat>
+      <risk>LOW</risk>
+      <vulnerability>Config.php contains a local network URL (joesnuc:4000) which reveals internal infrastructure.</vulnerability>
+      <mitigation>config.php is in .gitignore for production. URL only accessible from the same network.</mitigation>
+    </concern>
+    <concern>
+      <threat>Dev dependency on unstable QR code version (v5.0.x-dev)</threat>
+      <risk>LOW</risk>
+      <vulnerability>Using a dev version of chillerlan/php-qrcode which may have breaking changes or vulnerabilities.</vulnerability>
+      <mitigation>Pin to stable release when available.</mitigation>
+    </concern>
+  </security>
+
+  <!-- Completed features from initial analysis -->
+  <completed-features>
+    <feature id="CF1" completed="2026-02-08" completeness="FULL" test-coverage="NONE" ref-item="1">
+      <title>REST API with four endpoints</title>
+      <description>PHP REST API serving /news, /config, /status, and /refresh endpoints. Returns JSON with {success, data} structure. Handles CORS and OPTIONS preflight.</description>
+      <files>
+        <file>api/index.php</file>
+        <file>api/config.php</file>
+      </files>
+      <gaps></gaps>
+    </feature>
+
+    <feature id="CF2" completed="2026-02-08" completeness="FULL" test-coverage="NONE" ref-item="2">
+      <title>RSS/Atom Feed Fetching and Parsing</title>
+      <description>FeedService fetches multiple RSS and Atom feeds, parses them via Feed.php (dg/rss-php), supports both RSS item and Atom entry formats. Handles feed load failures gracefully.</description>
+      <files>
+        <file>api/FeedService.php</file>
+        <file>src/Feed.php</file>
+      </files>
+      <dependencies>
+        <depends-on>ext-simplexml, ext-openssl, external RSS feed URLs</depends-on>
+      </dependencies>
+      <gaps></gaps>
+    </feature>
+
+    <feature id="CF3" completed="2026-02-08" completeness="FULL" test-coverage="NONE" ref-item="3">
+      <title>File-based Feed Caching</title>
+      <description>JSON file cache (cache/feed_cache.json) with configurable TTL. Auto-creates cache directory. Supports force-refresh via API parameter. Cache status endpoint reports age and next refresh time.</description>
+      <files>
+        <file>api/FeedService.php</file>
+        <file>cache/</file>
+      </files>
+      <gaps></gaps>
+    </feature>
+
+    <feature id="CF4" completed="2026-02-08" completeness="FULL" test-coverage="NONE" ref-item="4">
+      <title>Content Cleaning and Shortening</title>
+      <description>Server-side content processing: HTML entity decoding, strip_tags, removal of "[mehr]" suffixes and tagesschau.de promotional text, whitespace normalization. Content shortened to max 2 sentences or 70 chars with sentence boundary preservation.</description>
+      <files>
+        <file>api/FeedService.php</file>
+      </files>
+      <gaps></gaps>
+    </feature>
+
+    <feature id="CF5" completed="2026-02-08" completeness="FULL" test-coverage="NONE" ref-item="5">
+      <title>Image Extraction from Feed Content</title>
+      <description>Regex-based extraction of img src URLs from HTML content. Validates URLs (must start with http or //). Deduplicates images. Returns as separate array in API response.</description>
+      <files>
+        <file>api/FeedService.php</file>
+      </files>
+      <gaps></gaps>
+    </feature>
+
+    <feature id="CF6" completed="2026-02-08" completeness="FULL" test-coverage="NONE">
+      <title>QR Code Generation</title>
+      <description>Generates QR codes for article links using chillerlan/php-qrcode. Returns base64 data URI for inline display. Graceful fallback to null on generation failure.</description>
+      <files>
+        <file>api/FeedService.php</file>
+      </files>
+      <dependencies>
+        <depends-on>chillerlan/php-qrcode</depends-on>
+      </dependencies>
+      <gaps></gaps>
+    </feature>
+
+    <feature id="CF7" completed="2026-02-08" completeness="FULL" test-coverage="NONE" ref-item="6">
+      <title>Keyword-based Content Filtering</title>
+      <description>Configurable exclude_keywords array in config.php. Items with matching titles (case-insensitive) are filtered out during feed processing.</description>
+      <files>
+        <file>api/FeedService.php</file>
+        <file>api/config.php</file>
+      </files>
+      <gaps></gaps>
+    </feature>
+
+    <feature id="CF8" completed="2026-02-08" completeness="FULL" test-coverage="NONE">
+      <title>Auto-playing News Carousel</title>
+      <description>Svelte carousel component with 18-second auto-play intervals. CSS translateX transitions. Supports prev/next navigation, pause/play toggle, slide indicators, and go-to-slide. Controls hidden in kiosk mode (display:none).</description>
+      <files>
+        <file>frontend/src/components/NewsCarousel.svelte</file>
+      </files>
+      <gaps></gaps>
+    </feature>
+
+    <feature id="CF9" completed="2026-02-08" completeness="FULL" test-coverage="NONE">
+      <title>News Item Display</title>
+      <description>Full-viewport news card with title (8vh font), source domain extraction, timestamp, floating QR code (right), floating images (left), and content text. Responsive layout for mobile. Kiosk-optimized with black background and white text.</description>
+      <files>
+        <file>frontend/src/components/NewsItem.svelte</file>
+      </files>
+      <gaps></gaps>
+    </feature>
+
+    <feature id="CF10" completed="2026-02-08" completeness="FULL" test-coverage="NONE">
+      <title>State Management with Svelte Stores</title>
+      <description>newsStore (writable) holds news items array. configStore (writable) holds API config. Functions for loadNews, loadConfig, refreshNews, startAutoRefresh, stopAutoRefresh. API base URL relative (../api).</description>
+      <files>
+        <file>frontend/src/stores/newsStore.js</file>
+      </files>
+      <gaps></gaps>
+    </feature>
+
+    <feature id="CF11" completed="2026-02-08" completeness="FULL" test-coverage="NONE">
+      <title>Auto-refresh of News Data</title>
+      <description>Frontend auto-refreshes news at interval configured from API (config.refreshInterval). Uses setInterval in newsStore. Carousel component starts auto-refresh on mount and stops on destroy.</description>
+      <files>
+        <file>frontend/src/stores/newsStore.js</file>
+        <file>frontend/src/components/NewsCarousel.svelte</file>
+      </files>
+      <gaps></gaps>
+    </feature>
+
+    <feature id="CF12" completed="2026-02-08" completeness="FULL" test-coverage="NONE">
+      <title>Settings Modal</title>
+      <description>Settings component with overlay modal. Allows changing auto-refresh interval, manual refresh trigger, shows feed info (count, max items). Hidden settings button in kiosk mode.</description>
+      <files>
+        <file>frontend/src/components/Settings.svelte</file>
+        <file>frontend/src/App.svelte</file>
+      </files>
+      <gaps></gaps>
+    </feature>
+
+    <feature id="CF13" completed="2026-02-08" completeness="FULL" test-coverage="NONE">
+      <title>Production Build and Deployment Routing</title>
+      <description>Vite builds to dist/ directory. .htaccess handles routing: root redirect to dist/, API passthrough, SPA fallback. index.php at root redirects to dist/. Base path /rss_kiosk/dist/ for production.</description>
+      <files>
+        <file>frontend/vite.config.js</file>
+        <file>.htaccess</file>
+        <file>index.php</file>
+        <file>dist/</file>
+      </files>
+      <gaps></gaps>
+    </feature>
+
+    <feature id="CF14" completed="2026-02-08" completeness="FULL" test-coverage="NONE">
+      <title>VS Code Integration</title>
+      <description>Launch configs for Chrome/Edge debugging. Tasks for dev environment startup, frontend build, dependency installation. Settings for PHP and Svelte language support.</description>
+      <files>
+        <file>.vscode/launch.json</file>
+        <file>.vscode/tasks.json</file>
+        <file>.vscode/settings.json</file>
+      </files>
+      <gaps></gaps>
+    </feature>
+
+    <feature id="CF15" completed="2026-02-08" completeness="FULL" test-coverage="NONE">
+      <title>Environment Configuration</title>
+      <description>Environment variables via .env.local: VITE_BASE_PATH (application base path), VITE_API_TARGET (backend URL for proxy). .env.example as template. Supports PHP built-in server and Apache setups.</description>
+      <files>
+        <file>frontend/.env.example</file>
+        <file>frontend/.env.local</file>
+        <file>frontend/vite.config.js</file>
+      </files>
+      <gaps></gaps>
+    </feature>
+  </completed-features>
+</project-overview>
