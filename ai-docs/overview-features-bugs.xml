@@ -26,8 +26,9 @@
 
   <!-- [REF] items for features without test coverage -->
 
-  <item id="1" type="refactoring" status="PENDING" priority="MEDIUM" complexity="M" ref-feature="CF1">
+  <item id="1" type="refactoring" status="DONE" priority="MEDIUM" complexity="M" ref-feature="CF1">
     <title>[REF] REST API endpoints – add test coverage</title>
+    <branch>refactoring/item-1-api-test-coverage</branch>
     <justification>Feature CF1 has completeness=FULL, test-coverage=NONE. API endpoints are the primary interface and changes risk breaking clients without detection.</justification>
     <depends-on></depends-on>
     <tasks>
@@ -41,20 +42,27 @@
     <verification>
       <tests>
         <test type="integration">
-          <file>tests/api/test_endpoints.php</file>
-          <description>API endpoint integration tests</description>
-          <assertions>Correct JSON structure, status codes, CORS headers for all endpoints</assertions>
+          <file>tests/test_endpoints.php</file>
+          <description>API endpoint tests: config structure, status, news/refresh response format, 404, JSON encoding, path routing</description>
+          <assertions>11/11 passed: correct JSON structures, required keys, valid encoding, path defaults</assertions>
         </test>
       </tests>
     </verification>
     <r>
-      <outcome></outcome>
-      <files><file></file></files>
+      <outcome>DONE</outcome>
+      <observations>Used lightweight custom test framework (TestHelper.php) instead of PHPUnit to avoid adding a heavy dev dependency. Tests verify response structure, JSON validity, config values, cache status, and routing logic. 11 tests covering all 4 endpoints plus error case.</observations>
+      <lessons-learned>A minimal assertion-based test helper is sufficient for small PHP projects without PHPUnit. Testing API response structure by constructing expected outputs works well for verifying contracts.</lessons-learned>
+      <files>
+        <file>tests/TestHelper.php</file>
+        <file>tests/test_endpoints.php</file>
+        <file>tests/run_all.php</file>
+      </files>
     </r>
   </item>
 
-  <item id="2" type="refactoring" status="PENDING" priority="MEDIUM" complexity="M" ref-feature="CF2">
+  <item id="2" type="refactoring" status="DONE" priority="MEDIUM" complexity="M" ref-feature="CF2">
     <title>[REF] Feed fetching and parsing – add test coverage</title>
+    <branch>refactoring/item-2-feed-parsing-tests</branch>
     <justification>Feature CF2 has completeness=FULL, test-coverage=NONE. Feed parsing is core functionality; regressions could silently break news display.</justification>
     <depends-on></depends-on>
     <tasks>
@@ -66,20 +74,25 @@
     <verification>
       <tests>
         <test type="unit">
-          <file>tests/api/test_feed_parsing.php</file>
-          <description>Feed parsing unit tests with mock RSS/Atom XML</description>
-          <assertions>Correct item extraction, timestamp parsing, error handling for malformed feeds</assertions>
+          <file>tests/test_feed_parsing.php</file>
+          <description>Feed parsing tests with mock RSS/Atom XML via reflection on private methods</description>
+          <assertions>11/11 passed: RSS item parsing, Atom entry parsing, pubDate/dc:date/updated timestamps, FeedException on invalid feeds, format auto-detection, empty feeds, description fallback</assertions>
         </test>
       </tests>
     </verification>
     <r>
-      <outcome></outcome>
-      <files><file></file></files>
+      <outcome>DONE</outcome>
+      <observations>Used ReflectionMethod to access private fromRss/fromAtom methods on Feed class. Tests cover RSS with pubDate, RSS with dc:date namespace, Atom with updated timestamps, invalid feed detection (missing channel, wrong namespace), empty item lists, and description-only items. 11 tests total.</observations>
+      <lessons-learned>ReflectionMethod is effective for testing private methods without modifying the source class. Mock XML inline in tests is cleaner than fixture files for small payloads.</lessons-learned>
+      <files>
+        <file>tests/test_feed_parsing.php</file>
+      </files>
     </r>
   </item>
 
-  <item id="3" type="refactoring" status="PENDING" priority="LOW" complexity="S" ref-feature="CF3">
+  <item id="3" type="refactoring" status="DONE" priority="LOW" complexity="S" ref-feature="CF3">
     <title>[REF] File-based caching – add test coverage</title>
+    <branch>refactoring/item-3-caching-tests</branch>
     <justification>Feature CF3 has completeness=FULL, test-coverage=NONE. Cache logic affects data freshness and performance.</justification>
     <depends-on></depends-on>
     <tasks>
@@ -91,15 +104,19 @@
     <verification>
       <tests>
         <test type="unit">
-          <file>tests/api/test_caching.php</file>
-          <description>Cache behavior unit tests</description>
-          <assertions>Cache hit within TTL, miss after TTL, force-refresh bypasses, directory created if missing</assertions>
+          <file>tests/test_caching.php</file>
+          <description>Cache behavior tests using isolated temp directories</description>
+          <assertions>9/9 passed: directory auto-creation, empty cache status, write/read cycle, status after write, TTL valid/expired, force-refresh bypass, cache disabled, data structure preservation</assertions>
         </test>
       </tests>
     </verification>
     <r>
-      <outcome></outcome>
-      <files><file></file></files>
+      <outcome>DONE</outcome>
+      <observations>Tests use isolated temp directories (sys_get_temp_dir with uniqid) to avoid interfering with production cache. TTL expiry tested by backdating file with touch(). Force-refresh verified by pre-populating cache with known data and confirming it gets overwritten. 9 tests total.</observations>
+      <lessons-learned>Using touch() to backdate cache files is a reliable way to test TTL expiry without sleep(). Isolated temp dirs per test prevent cross-test contamination.</lessons-learned>
+      <files>
+        <file>tests/test_caching.php</file>
+      </files>
     </r>
   </item>
 
@@ -230,6 +247,8 @@
   <!-- ================================================================== -->
   <changelog>
     <entry date="2026-02-08">Initial analysis: 15 features cataloged (all FULL completeness, all NONE test-coverage). Created 6 [REF] items (1-6) for test coverage gaps. Created 2 tech-debt items (7-8) for dependency pinning and error message sanitization.</entry>
+    <entry date="2026-02-08">Items 1, 2, 3 → APPROVED. Branches assigned.</entry>
+    <entry date="2026-02-08">Items 1, 2, 3 implemented and DONE. Created test framework (TestHelper.php, run_all.php) and 3 test suites: API endpoints (11 tests), feed parsing (11 tests), caching (9 tests). All 31/31 passing.</entry>
   </changelog>
 
 </implementation-plan>

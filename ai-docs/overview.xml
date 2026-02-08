@@ -104,7 +104,7 @@
 
   <!-- Completed features from initial analysis -->
   <completed-features>
-    <feature id="CF1" completed="2026-02-08" completeness="FULL" test-coverage="NONE" ref-item="1">
+    <feature id="CF1" completed="2026-02-08" completeness="FULL" test-coverage="TESTED" ref-item="1">
       <title>REST API with four endpoints</title>
       <description>PHP REST API serving /news, /config, /status, and /refresh endpoints. Returns JSON with {success, data} structure. Handles CORS and OPTIONS preflight.</description>
       <files>
@@ -114,7 +114,7 @@
       <gaps></gaps>
     </feature>
 
-    <feature id="CF2" completed="2026-02-08" completeness="FULL" test-coverage="NONE" ref-item="2">
+    <feature id="CF2" completed="2026-02-08" completeness="FULL" test-coverage="TESTED" ref-item="2">
       <title>RSS/Atom Feed Fetching and Parsing</title>
       <description>FeedService fetches multiple RSS and Atom feeds, parses them via Feed.php (dg/rss-php), supports both RSS item and Atom entry formats. Handles feed load failures gracefully.</description>
       <files>
@@ -127,7 +127,7 @@
       <gaps></gaps>
     </feature>
 
-    <feature id="CF3" completed="2026-02-08" completeness="FULL" test-coverage="NONE" ref-item="3">
+    <feature id="CF3" completed="2026-02-08" completeness="FULL" test-coverage="TESTED" ref-item="3">
       <title>File-based Feed Caching</title>
       <description>JSON file cache (cache/feed_cache.json) with configurable TTL. Auto-creates cache directory. Supports force-refresh via API parameter. Cache status endpoint reports age and next refresh time.</description>
       <files>
